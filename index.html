@@ -1,14 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spring-Mass-Damper Simulation</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div id="visualization"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soft Body Simulation - Task 1</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="controls">
+        <button id="startBtn">Start/Stop</button>
+        <button id="resetBtn">Reset</button>
+        <select id="methodSelect">
+            <option value="euler">Euler Method</option>
+            <option value="verlet">Verlet Method</option>
+        </select>
+    </div>
+    <div id="simulation"></div>
     <script src="script.js"></script>
-  </body>
+</body>
 </html>

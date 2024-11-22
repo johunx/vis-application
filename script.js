@@ -1,79 +1,141 @@
-const mass = 0.2; // kg
-const springLength = 1; // meters
-const stiffness = 20; // kg/s^2
-const damping = 0.1; // kg/s
-const timeStep = 0.01; // s
+// Constants from the assignment
+const h = 0.01; // Step size (s)
+const m = 0.2; // Mass (kg)
+const k = 20; // Spring stiffness (kg/s^2)
+const b = 0.1; // Damping coefficient (kg/s)
+const l0 = 1; // Rest length (m)
 
-let positions = [0, springLength];
-let velocities = [0, 0];
-let accelerations = [0, 0];
+// Simulation state
+let isRunning = false;
+let masses = [];
+let previousPositions = [];
 
-function calculateSpringForce(position1, position2) {
-  const displacement = position2 - position1;
-  return -stiffness * (displacement - springLength);
+// SVG setup
+const width = 800;
+const height = 400;
+const svg = d3
+  .select("#simulation")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height);
+
+// Initialize masses
+function initializeMasses() {
+  masses = [
+    {
+      x: width / 2 - 50,
+      y: height / 2,
+      vx: 0,
+      vy: 0,
+      fx: 0,
+      fy: 0,
+      fixed: true,
+    },
+    {
+      x: width / 2 + 50,
+      y: height / 2,
+      vx: 0,
+      vy: 0,
+      fx: 0,
+      fy: 0,
+      fixed: false,
+    },
+  ];
+  previousPositions = masses.map((m) => ({ x: m.x, y: m.y }));
 }
 
-function calculateDampingForce(velocity1, velocity2) {
-  return -damping * (velocity1 - velocity2);
+// Calculate spring force between two masses
+function calculateSpringForce(mass1, mass2) {
+  const dx = mass2.x - mass1.x;
+  const dy = mass2.y - mass1.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+  const force = k * (distance - l0);
+
+  return {
+    fx: (force * dx) / distance,
+    fy: (force * dy) / distance,
+  };
 }
 
-function updateSystem() {
+// Calculate damping force between two masses
+function calculateDampingForce(mass1, mass2) {
+  const dvx = mass2.vx - mass1.vx;
+  const dvy = mass2.vy - mass1.vy;
+
+  return {
+    fx: b * dvx,
+    fy: b * dvy,
+  };
+}
+
+// Euler integration step
+function eulerStep() {
   // Calculate forces
-  let springForce = calculateSpringForce(positions[0], positions[1]);
-  let dampingForce = calculateDampingForce(velocities[0], velocities[1]);
-  let totalForce = springForce + dampingForce;
+  const springForce = calculateSpringForce(masses[0], masses[1]);
+  const dampingForce = calculateDampingForce(masses[0], masses[1]);
 
-  // Calculate acceleration (Newton's Second Law)
-  accelerations[0] = totalForce / mass;
-  accelerations[1] = -totalForce / mass;
+  // Apply forces to non-fixed mass
+  if (!masses[1].fixed) {
+    masses[1].fx = -springForce.fx - dampingForce.fx;
+    masses[1].fy = -springForce.fy - dampingForce.fy;
 
-  // Update velocity and position using Euler method
-  for (let i = 0; i < positions.length; i++) {
-    velocities[i] += accelerations[i] * timeStep;
-    positions[i] += velocities[i] * timeStep;
+    // Update velocity and position using Euler method
+    masses[1].vx += (masses[1].fx / m) * h;
+    masses[1].vy += (masses[1].fy / m) * h;
+    masses[1].x += masses[1].vx * h;
+    masses[1].y += masses[1].vy * h;
   }
 }
 
-// Initialize SVG before using it in the render function
-const svg = d3
-  .select("#visualization")
-  .append("svg")
-  .attr("width", 600)
-  .attr("height", 200);
+// Draw the simulation
+function draw() {
+  // Draw spring
+  const spring = svg.selectAll(".spring").data([masses]);
 
-// Update loop
-function simulate() {
-  updateSystem();
-  render(); // Update visualization
-  requestAnimationFrame(simulate);
-}
-
-simulate(); // Start the simulation
-
-function render() {
-  svg.selectAll("*").remove();
+  spring
+    .enter()
+    .append("line")
+    .attr("class", "spring")
+    .merge(spring)
+    .attr("x1", (d) => d[0].x)
+    .attr("y1", (d) => d[0].y)
+    .attr("x2", (d) => d[1].x)
+    .attr("y2", (d) => d[1].y);
 
   // Draw masses
-  svg
-    .append("circle")
-    .attr("cx", 100 + positions[0] * 50)
-    .attr("cy", 100)
-    .attr("r", 10)
-    .attr("fill", "blue");
+  const circles = svg.selectAll(".mass").data(masses);
 
-  svg
+  circles
+    .enter()
     .append("circle")
-    .attr("cx", 100 + positions[1] * 50)
-    .attr("cy", 100)
+    .attr("class", "mass")
     .attr("r", 10)
-    .attr("fill", "blue");
-
-  // Draw spring
-  svg
-    .append("line")
-    .attr("x1", 100 + positions[0] * 50)
-    .attr("y1", 100)
-    .attr("x2", 100 + positions[1] * 50)
-    .attr("y2", 100)
-    .attr("stroke", "black");
+    .merge(circles)
+    .attr("cx", (d) => d.x)
+    .attr("cy", (d) => d.y);
 }
+
+// Animation loop
+function animate() {
+  if (isRunning) {
+    eulerStep();
+    draw();
+    requestAnimationFrame(animate);
+  }
+}
+
+// Event listeners
+d3.select("#startBtn").on("click", () => {
+  isRunning = !isRunning;
+  if (isRunning) animate();
+});
+
+d3.select("#resetBtn").on("click", () => {
+  isRunning = false;
+  initializeMasses();
+  draw();
+});
+
+// Initialize and draw initial state
+initializeMasses();
+draw();
