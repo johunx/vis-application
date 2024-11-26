@@ -53,14 +53,17 @@ function initializeGrid() {
     const velocityRow = [];
     const forceRow = [];
     for (let j = 0; j < cols; j++) {
-      positionRow.push([width / 2, height / 2]); // ! TODO: think about how to calculate initial positions for the nodes
-      velocityRow.push([width / 2 + 1, height / 2]); // Initial velocity
+      positionRow.push([padding + i*xStep,padding + yStep*j]); // ! TODO: think about how to calculate initial positions for the nodes
+      velocityRow.push([0,0]); // Initial velocity
       forceRow.push([0, 0]); // Initial force
     }
     positions.push(positionRow);
     velocities.push(velocityRow);
     forces.push(forceRow);
   }
+
+  console.log(positions[0]);
+
   drawNodes();
   drawEdges();
 }
@@ -90,6 +93,15 @@ function drawNodes() {
  */
 function drawEdges() {
   // TODO: add your implementation here to connect the nodes with lines.
+  const edges = svg.selectAll("line").data([positions]);
+  edges
+  .enter()
+  .append("line")
+  .style("stroke", "lightgreen").style("stroke-width", 10)
+  .attr("x1", (d) => d[0][0][0])
+  .attr("y1", (d) => d[0][0][1])
+  .attr("x2", (d) => d[1][0][0])
+  .attr("y2", (d) => d[1][0][1]);
 }
 
 /**
