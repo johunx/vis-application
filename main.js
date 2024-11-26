@@ -92,16 +92,46 @@ function drawNodes() {
  * Draw the edges (lines) connecting the nodes.
  */
 function drawEdges() {
-  // TODO: add your implementation here to connect the nodes with lines.
-  const edges = svg.selectAll("line").data([positions]);
-  edges
-  .enter()
-  .append("line")
-  .style("stroke", "lightgreen").style("stroke-width", 10)
-  .attr("x1", (d) => d[0][0][0])
-  .attr("y1", (d) => d[0][0][1])
-  .attr("x2", (d) => d[1][0][0])
-  .attr("y2", (d) => d[1][0][1]);
+  const edges = [];
+
+  // Create horizontal edges
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols - 1; j++) {
+      edges.push({
+        x1: positions[i][j][0],
+        y1: positions[i][j][1],
+        x2: positions[i][j + 1][0],
+        y2: positions[i][j + 1][1],
+      });
+    }
+  }
+
+  // Create vertical edges
+  for (let i = 0; i < rows - 1; i++) {
+    for (let j = 0; j < cols; j++) {
+      edges.push({
+        x1: positions[i][j][0],
+        y1: positions[i][j][1],
+        x2: positions[i + 1][j][0],
+        y2: positions[i + 1][j][1],
+      });
+    }
+  }
+
+  // Draw edges
+  const edgeSelection = svg.selectAll("line").data(edges);
+  edgeSelection
+    .enter()
+    .append("line")
+    .merge(edgeSelection)
+    .attr("x1", (d) => d.x1)
+    .attr("y1", (d) => d.y1)
+    .attr("x2", (d) => d.x2)
+    .attr("y2", (d) => d.y2)
+    .style("stroke", "lightgreen")
+    .style("stroke-width", 2);
+
+  edgeSelection.exit().remove();
 }
 
 /**
