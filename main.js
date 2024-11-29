@@ -173,19 +173,19 @@ function calculateForces() {
   }
 
   // Structural Spring Constants
-  const k = structuralSpringK;    // Spring stiffness coefficient
-  const b = structuralSpringB;    // Damping coefficient
+  const k = structuralSpringK; // Spring stiffness coefficient
+  const b = structuralSpringB; // Damping coefficient
   const ℓ0 = structuralRestLength; // Rest length of the spring
 
   // Calculate forces for horizontal structural springs
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols - 1; j++) {
       // Positions of particles p and q
-      const r_p = positions[i][j];     // [x_p, y_p]
+      const r_p = positions[i][j]; // [x_p, y_p]
       const r_q = positions[i][j + 1]; // [x_q, y_q]
 
       // Velocities of particles p and q
-      const v_p = velocities[i][j];     // [v_px, v_py]
+      const v_p = velocities[i][j]; // [v_px, v_py]
       const v_q = velocities[i][j + 1]; // [v_qx, v_qy]
 
       // Displacement vector components: Δr = r_p - r_q
@@ -240,32 +240,31 @@ function calculateForces() {
   }
 }
 
-
 function updatePositions() {
   // TODO: think about how to calculate positions and velocities. (e.g. Euler's method)
   calculateForces();
 
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        // TODO: potentially implement position and velocity updates here.
-        // Example:
-        // velocities[i][j][0] += some calculation
-        // velocities[i][j][1] += some calculation
-        // positions[i][j][0] += some calculation;
-        // positions[i][j][1] += some calculation;
-        // Calculate acceleration (F = ma -> a = F/m)
-        const ax = forces[i][j][0] / nodeMass;
-        const ay = forces[i][j][1] / nodeMass;
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      // TODO: potentially implement position and velocity updates here.
+      // Example:
+      // velocities[i][j][0] += some calculation
+      // velocities[i][j][1] += some calculation
+      // positions[i][j][0] += some calculation;
+      // positions[i][j][1] += some calculation;
+      // Calculate acceleration (F = ma -> a = F/m)
+      const ax = forces[i][j][0] / nodeMass;
+      const ay = forces[i][j][1] / nodeMass;
 
-        // Update velocity: v = v + at
-        velocities[i][j][0] += ax * timeStep;
-        velocities[i][j][1] += ay * timeStep;
+      // Update velocity: v = v + at
+      velocities[i][j][0] += ax * timeStep;
+      velocities[i][j][1] += ay * timeStep;
 
-        // Update position: x = x + vt
-        positions[i][j][0] += velocities[i][j][0] * timeStep;
-        positions[i][j][1] += velocities[i][j][1] * timeStep;
-      }
+      // Update position: x = x + vt
+      positions[i][j][0] += velocities[i][j][0] * timeStep;
+      positions[i][j][1] += velocities[i][j][1] * timeStep;
     }
+  }
 
   // TODO: Think about how to redraw nodes and edges with updated positions
   drawNodes();
