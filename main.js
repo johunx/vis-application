@@ -163,91 +163,109 @@ function drawEdges() {
   edgeSelection.exit().remove();
 }
 
-/**
- * Calculate forces acting on each node.
- * This function is a placeholder for students to implement force calculations.
- */
 function calculateForces() {
-  // Reset forces
+  // Reset forces for all particles
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
-      forces[i][j][0] = 0;
-      forces[i][j][1] = 0;
+      forces[i][j][0] = 0; // Force in x-direction
+      forces[i][j][1] = 0; // Force in y-direction
     }
   }
 
-  // TODO: add your implementation here.
-  // Example:
-  // - Calculate spring forces (horizontal, vertical, diagonal/sheer).
-  // - Add restoring forces.
-  // - Add damping forces.
-  // Let's start with just structural springs (horizontal connections)
-  // Calculate forces for horizontal springs
+  // Structural Spring Constants
+  const k = structuralSpringK;    // Spring stiffness coefficient
+  const b = structuralSpringB;    // Damping coefficient
+  const ℓ0 = structuralRestLength; // Rest length of the spring
+
+  // Calculate forces for horizontal structural springs
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols - 1; j++) {
-      // Get positions and velocities
-      const pos1 = positions[i][j];
-      const pos2 = positions[i][j + 1];
-      const vel1 = velocities[i][j];
-      const vel2 = velocities[i][j + 1];
+      // Positions of particles p and q
+      const r_p = positions[i][j];     // [x_p, y_p]
+      const r_q = positions[i][j + 1]; // [x_q, y_q]
 
-      // Calculate spring direction and length
-      const dx = pos2[0] - pos1[0];
-      const dy = pos2[1] - pos1[1];
-      const length = Math.sqrt(dx * dx + dy * dy);
+      // Velocities of particles p and q
+      const v_p = velocities[i][j];     // [v_px, v_py]
+      const v_q = velocities[i][j + 1]; // [v_qx, v_qy]
 
-      if (length === 0) continue;
+      // Displacement vector components: Δr = r_p - r_q
+      const Δr_x = r_p[0] - r_q[0]; // Δr_x = x_p - x_q
+      const Δr_y = r_p[1] - r_q[1]; // Δr_y = y_p - y_q
 
-      // Calculate relative velocity
-      const dvx = vel2[0] - vel1[0];
-      const dvy = vel2[1] - vel1[1];
+      // Distance between particles p and q
+      const distance = Math.sqrt(Δr_x * Δr_x + Δr_y * Δr_y);
 
-      // Spring force (as before)
-      const springForce = structuralSpringK * (length - structuralRestLength);
+      // Avoid division by zero
+      if (distance === 0) continue;
 
-      // Add damping force
-      const dampingForce = structuralSpringB * ((dvx * dx + dvy * dy) / length);
+      // Unit vector along the displacement: n̂ = Δr / |Δr|
+      const n_x = Δr_x / distance;
+      const n_y = Δr_y / distance;
 
-      // Total force
-      const totalForce = springForce + dampingForce;
-      const forceMagnitude = totalForce / length;
-      const forceX = forceMagnitude * dx;
-      const forceY = forceMagnitude * dy;
+      // **Spring Force Calculation**
 
-      // Apply forces
-      forces[i][j][0] += forceX;
-      forces[i][j][1] += forceY;
-      forces[i][j + 1][0] -= forceX;
-      forces[i][j + 1][1] -= forceY;
+      // Calculate the spring force magnitude: F_s = -k (|Δr| - ℓ0)
+      const F_s_magnitude = -k * (distance - ℓ0);
+
+      // Spring force components: F_s = F_s_magnitude * n̂
+      const F_sx = F_s_magnitude * n_x;
+      const F_sy = F_s_magnitude * n_y;
+
+      // **Damping Force Calculation**
+
+      // Relative velocity components: Δv = v_p - v_q
+      const Δv_x = v_p[0] - v_q[0]; // Δv_x = v_px - v_qx
+      const Δv_y = v_p[1] - v_q[1]; // Δv_y = v_py - v_qy
+
+      // Damping force components: F_d = -b * Δv
+      const F_dx = -b * Δv_x;
+      const F_dy = -b * Δv_y;
+
+      // **Total Force Components**
+
+      // Total force on particle p due to particle q: F_total = F_s + F_d
+      const F_total_x = F_sx + F_dx;
+      const F_total_y = F_sy + F_dy;
+
+      // **Apply Forces to Particles**
+
+      // Update forces on particle p
+      forces[i][j][0] += F_total_x;
+      forces[i][j][1] += F_total_y;
+
+      // Update forces on particle q (Newton's Third Law)
+      forces[i][j + 1][0] -= F_total_x;
+      forces[i][j + 1][1] -= F_total_y;
     }
   }
 }
+
 
 function updatePositions() {
   // TODO: think about how to calculate positions and velocities. (e.g. Euler's method)
   calculateForces();
 
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      // TODO: potentially implement position and velocity updates here.
-      // Example:
-      // velocities[i][j][0] += some calculation
-      // velocities[i][j][1] += some calculation
-      // positions[i][j][0] += some calculation;
-      // positions[i][j][1] += some calculation;
-      // Calculate acceleration (F = ma -> a = F/m)
-      const ax = forces[i][j][0] / nodeMass;
-      const ay = forces[i][j][1] / nodeMass;
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        // TODO: potentially implement position and velocity updates here.
+        // Example:
+        // velocities[i][j][0] += some calculation
+        // velocities[i][j][1] += some calculation
+        // positions[i][j][0] += some calculation;
+        // positions[i][j][1] += some calculation;
+        // Calculate acceleration (F = ma -> a = F/m)
+        const ax = forces[i][j][0] / nodeMass;
+        const ay = forces[i][j][1] / nodeMass;
 
-      // Update velocity: v = v + at
-      velocities[i][j][0] += ax * timeStep;
-      velocities[i][j][1] += ay * timeStep;
+        // Update velocity: v = v + at
+        velocities[i][j][0] += ax * timeStep;
+        velocities[i][j][1] += ay * timeStep;
 
-      // Update position: x = x + vt
-      positions[i][j][0] += velocities[i][j][0] * timeStep;
-      positions[i][j][1] += velocities[i][j][1] * timeStep;
+        // Update position: x = x + vt
+        positions[i][j][0] += velocities[i][j][0] * timeStep;
+        positions[i][j][1] += velocities[i][j][1] * timeStep;
+      }
     }
-  }
 
   // TODO: Think about how to redraw nodes and edges with updated positions
   drawNodes();
