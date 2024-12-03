@@ -50,7 +50,7 @@ let useAltForceMethod = false;
  */
 function initializeGrid() {
   positions = [];
-  oldPositions = [];  // Initialize old positions array
+  oldPositions = []; // Initialize old positions array
   velocities = [];
   forces = [];
   const xStep = (width - 2 * padding) / (cols - 1);
@@ -58,18 +58,18 @@ function initializeGrid() {
 
   for (let i = 0; i < rows; i++) {
     const positionRow = [];
-    const oldPositionRow = []; 
+    const oldPositionRow = [];
     const velocityRow = [];
     const forceRow = [];
     for (let j = 0; j < cols; j++) {
       const initialPos = [padding + j * xStep, padding + yStep * i];
       positionRow.push(initialPos); // ! TODO: think about how to calculate initial positions for the nodes
-      oldPositionRow.push([...initialPos]);  // Copy initial position for old positions
+      oldPositionRow.push([...initialPos]); // Copy initial position for old positions
       velocityRow.push([0, 0]); // Initial velocity
       forceRow.push([0, 0]); // Initial force
     }
     positions.push(positionRow);
-    oldPositions.push(oldPositionRow); 
+    oldPositions.push(oldPositionRow);
     velocities.push(velocityRow);
     forces.push(forceRow);
   }
@@ -171,11 +171,11 @@ function drawEdges() {
   edgeSelection.exit().remove();
 }
 
-function calculateForces() {
+function updatePositions() {
   if (useAltForceMethod) {
     updatePositionsVerlet();
   } else {
-    updatePositions();
+    updatePositionsEuler();
   }
 }
 
@@ -256,8 +256,7 @@ function calculateForces() {
   }
 }
 
-
-function updatePositions() {
+function updatePositionsEuler() {
   // TODO: think about how to calculate positions and velocities. (e.g. Euler's method)
   calculateForces();
 
@@ -293,30 +292,34 @@ function updatePositionsVerlet() {
   calculateForces();
 
   for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-          // Calculate acceleration (F = ma)
-          const ax = forces[i][j][0] / nodeMass;
-          const ay = forces[i][j][1] / nodeMass;
+    for (let j = 0; j < cols; j++) {
+      // Calculate acceleration (F = ma)
+      const ax = forces[i][j][0] / nodeMass;
+      const ay = forces[i][j][1] / nodeMass;
 
-          // Store current position
-          const oldX = positions[i][j][0];
-          const oldY = positions[i][j][1];
+      // Store current position
+      const oldX = positions[i][j][0];
+      const oldY = positions[i][j][1];
 
-          // Verlet integration
-          // new_position = 2 * current_position - old_position + acceleration * (timestep)^2
-          positions[i][j][0] = 2 * positions[i][j][0] - oldPositions[i][j][0] + ax * timeStep * timeStep;
-          positions[i][j][1] = 2 * positions[i][j][1] - oldPositions[i][j][1] + ay * timeStep * timeStep;
+      // Verlet integration
+      // new_position = 2 * current_position - old_position + acceleration * (timestep)^2
+      positions[i][j][0] =
+        2 * positions[i][j][0] -
+        oldPositions[i][j][0] +
+        ax * timeStep * timeStep;
+      positions[i][j][1] =
+        2 * positions[i][j][1] -
+        oldPositions[i][j][1] +
+        ay * timeStep * timeStep;
 
-          // Update old positions for next frame
-          oldPositions[i][j][0] = oldX;
-          oldPositions[i][j][1] = oldY;
-      }
+      // Update old positions for next frame
+      oldPositions[i][j][0] = oldX;
+      oldPositions[i][j][1] = oldY;
+    }
   }
   drawNodes();
   drawEdges();
 }
-
-
 
 /**
  * Main simulation loop.
