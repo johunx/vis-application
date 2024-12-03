@@ -171,11 +171,11 @@ function drawEdges() {
   edgeSelection.exit().remove();
 }
 
-function calculateForces() {
+function updatePositions() {
   if (useAltForceMethod) {
     updatePositionsVerlet();
   } else {
-    updatePositions();
+    updatePositionsEuler();
   }
 }
 
@@ -256,7 +256,7 @@ function calculateForces() {
   }
 }
 
-function updatePositions() {
+function updatePositionsEuler() {
   // TODO: think about how to calculate positions and velocities. (e.g. Euler's method)
   calculateForces();
 
