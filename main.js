@@ -221,7 +221,7 @@ function calculateForces() {
       // **Spring Force Calculation**
 
       // Calculate the spring force magnitude: F_s = -k (|Δr| - ℓ0)
-      const F_s_magnitude = -k * (distance - ℓ0);
+      const F_s_magnitude = -restoreForce * k * (distance - ℓ0);
 
       // Spring force components: F_s = F_s_magnitude * n̂
       const F_sx = F_s_magnitude * n_x;
@@ -273,6 +273,10 @@ function updatePositionsEuler() {
       const ax = forces[i][j][0] / nodeMass;
       const ay = forces[i][j][1] / nodeMass;
 
+      // Apply global damping to velocity
+      velocities[i][j][0] *= 1 - damping;
+      velocities[i][j][1] *= 1 - damping;
+
       // Update velocity: v = v + at
       velocities[i][j][0] += ax * timeStep;
       velocities[i][j][1] += ay * timeStep;
@@ -303,6 +307,17 @@ function updatePositionsVerlet() {
 
       // Verlet integration
       // new_position = 2 * current_position - old_position + acceleration * (timestep)^2
+
+      // Calculate current velocity before updating positions
+      velocities[i][j][0] =
+        (positions[i][j][0] - oldPositions[i][j][0]) / (2 * timeStep);
+      velocities[i][j][1] =
+        (positions[i][j][1] - oldPositions[i][j][1]) / (2 * timeStep);
+
+      // Apply global damping to velocity
+      velocities[i][j][0] *= 1 - damping;
+      velocities[i][j][1] *= 1 - damping;
+
       positions[i][j][0] =
         2 * positions[i][j][0] -
         oldPositions[i][j][0] +
@@ -313,6 +328,7 @@ function updatePositionsVerlet() {
         ay * timeStep * timeStep;
 
       // Equation 12: v_{n+1} = (r_{n+1} - r_{n-1})/(2h)
+
       velocities[i][j][0] =
         (positions[i][j][0] - oldPositions[i][j][0]) / (2 * timeStep);
       velocities[i][j][1] =
