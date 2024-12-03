@@ -43,6 +43,8 @@ let velocities = [];
 let forces = [];
 let isRunning = false;
 
+let useAltForceMethod = false;
+
 /**
  * Initialize the grid with nodes and reset their positions, velocities, and forces.
  */
@@ -168,6 +170,14 @@ function drawEdges() {
 }
 
 function calculateForces() {
+  if (useAltForceMethod) {
+    calculateForcesVerlet();
+  } else {
+    calculateForcesEuler();
+  }
+}
+
+function calculateForcesEuler() {
   // Reset forces for all particles
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
@@ -244,6 +254,8 @@ function calculateForces() {
   }
 }
 
+function calculateForcesVerlet() {}
+
 function updatePositions() {
   // TODO: think about how to calculate positions and velocities. (e.g. Euler's method)
   calculateForces();
@@ -257,6 +269,7 @@ function updatePositions() {
       // positions[i][j][0] += some calculation;
       // positions[i][j][1] += some calculation;
       // Calculate acceleration (F = ma -> a = F/m)
+
       const ax = forces[i][j][0] / nodeMass;
       const ay = forces[i][j][1] / nodeMass;
 
@@ -317,6 +330,10 @@ function simulationLoop() {
 }
 
 // ********** Event listeners examples for controls **********
+
+document.getElementById("force-method").addEventListener("change", (e) => {
+  useAltForceMethod = e.target.checked;
+});
 
 // Start/Stop simulation
 document.getElementById("toggle-simulation").addEventListener("click", () => {
