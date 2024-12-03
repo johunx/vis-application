@@ -58,10 +58,12 @@ function initializeGrid() {
 
   for (let i = 0; i < rows; i++) {
     const positionRow = [];
+    const oldPositionRow = []; 
     const velocityRow = [];
     const forceRow = [];
     for (let j = 0; j < cols; j++) {
-      positionRow.push([padding + j * xStep, padding + yStep * i]); // ! TODO: think about how to calculate initial positions for the nodes
+      const initialPos = [padding + j * xStep, padding + yStep * i];
+      positionRow.push(initialPos); // ! TODO: think about how to calculate initial positions for the nodes
       oldPositionRow.push([...initialPos]);  // Copy initial position for old positions
       velocityRow.push([0, 0]); // Initial velocity
       forceRow.push([0, 0]); // Initial force
@@ -171,13 +173,13 @@ function drawEdges() {
 
 function calculateForces() {
   if (useAltForceMethod) {
-    calculateForcesVerlet();
+    updatePositionsVerlet();
   } else {
-    calculateForcesEuler();
+    updatePositions();
   }
 }
 
-function calculateForcesEuler() {
+function calculateForces() {
   // Reset forces for all particles
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
@@ -254,7 +256,6 @@ function calculateForcesEuler() {
   }
 }
 
-function calculateForcesVerlet() {}
 
 function updatePositions() {
   // TODO: think about how to calculate positions and velocities. (e.g. Euler's method)
