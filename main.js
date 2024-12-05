@@ -203,31 +203,23 @@ function calculateForces() {
       const v_q = velocities[i][j + 1];
 
       const r_x = r_p[0] - r_q[0];
-      const r_y = r_p[1] - r_q[1];
-      const distance = Math.sqrt(r_x * r_x + r_y * r_y);
+      const distance = Math.sqrt(r_x * r_x);
 
       if (distance === 0) continue;
 
       const n_x = r_x / distance;
-      const n_y = r_y / distance;
 
       const F_s_magnitude = -restoreForce * k * (distance - l);
       const F_sx = F_s_magnitude * n_x;
-      const F_sy = F_s_magnitude * n_y;
 
       const v_x = v_p[0] - v_q[0];
-      const v_y = v_p[1] - v_q[1];
 
       const F_dx = -b * v_x;
-      const F_dy = -b * v_y;
 
       const F_total_x = F_sx + F_dx;
-      const F_total_y = F_sy + F_dy;
 
       forces[i][j][0] += F_total_x;
-      forces[i][j][1] += F_total_y;
       forces[i][j + 1][0] -= F_total_x;
-      forces[i][j + 1][1] -= F_total_y;
     }
   }
 
@@ -239,31 +231,23 @@ function calculateForces() {
       const v_p = velocities[i][j];
       const v_q = velocities[i + 1][j];
 
-      const r_x = r_p[0] - r_q[0];
       const r_y = r_p[1] - r_q[1];
-      const distance = Math.sqrt(r_x * r_x + r_y * r_y);
+      const distance = Math.sqrt(r_y * r_y);
 
       if (distance === 0) continue;
 
-      const n_x = r_x / distance;
       const n_y = r_y / distance;
 
       const F_s_magnitude = -restoreForce * k * (distance - l);
-      const F_sx = F_s_magnitude * n_x;
       const F_sy = F_s_magnitude * n_y;
 
-      const v_x = v_p[0] - v_q[0];
       const v_y = v_p[1] - v_q[1];
 
-      const F_dx = -b * v_x;
       const F_dy = -b * v_y;
 
-      const F_total_x = F_sx + F_dx;
       const F_total_y = F_sy + F_dy;
 
-      forces[i][j][0] += F_total_x;
       forces[i][j][1] += F_total_y;
-      forces[i + 1][j][0] -= F_total_x;
       forces[i + 1][j][1] -= F_total_y;
     }
   }
