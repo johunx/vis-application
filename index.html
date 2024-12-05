@@ -45,13 +45,28 @@
       <label for="force-method">Use Verlet Method:</label>
       <input type="checkbox" id="force-method" />
 
+      <div class="mass-container">
+        <label for="mass">Nodemass:</label>
+        <input id="mass" type="number" value="0.2" min="0.1" />
+      </div>
+
+      <div class="structural-spring-stiftness-container">
+        <label for="spsK">Structural spring stiftness:</label>
+        <input id="spsK" type="number" value="20" min="0.1" />
+      </div>
+
+      <div class="shear-spring-stiftness-container">
+        <label for="ssK">Shear diagonal spring stiftness:</label>
+        <input id="ssK" type="number" value="7" min="0.1" />
+      </div>
+
       <div class="slider-container">
         <label for="rows">Rows:</label>
-        <input id="rows" type="number" value="2" min="1" />
+        <input id="rows" type="number" value="5" min="1" />
       </div>
       <div class="slider-container">
         <label for="cols">Cols:</label>
-        <input id="cols" type="number" value="2" min="1" />
+        <input id="cols" type="number" value="5" min="1" />
       </div>
       <div class="slider-container">
         <label for="restore-force">Restore Force:</label>
@@ -73,9 +88,9 @@
           min="0"
           max="1"
           step="0.01"
-          value="0.5"
+          value="0"
         />
-        <span id="damping-value">0.50</span>
+        <span id="damping-value">0.0</span>
       </div>
     </div>
 

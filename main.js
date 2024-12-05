@@ -24,15 +24,16 @@ let damping = parseFloat(document.getElementById("damping").value);
 const nodeRadius = 5;
 const timeStep = 0.016;
 const padding = 50;
-const nodeMass = 0.2; // Mass of each node (kg)
+
+let nodeMass = 0.2;
 
 // Structural spring parameters
-const structuralSpringK = 20; // Structural spring stiffness (kg/s^2)
+let structuralSpringK = 20; // Structural spring stiffness (kg/s^2)
 const structuralSpringB = 0.1; // Structural spring damping (kg/s)
 const structuralRestLength = 100; // Structural spring rest length (pixels)
 
 // Shear spring parameters
-const shearSpringK = 7; // Shear spring stiffness (kg/s^2)
+let shearSpringK = 7; // Shear spring stiffness (kg/s^2)
 const shearSpringB = 0.05; // Shear spring damping (kg/s)
 const shearRestLength = structuralRestLength * Math.sqrt(2); // Shear spring rest length (pixels)
 
@@ -189,9 +190,9 @@ function calculateForces() {
   }
 
   // Structural Spring Constants
-  const k = structuralSpringK; // Spring stiffness coefficient
+  let k = structuralSpringK; // Spring stiffness coefficient
   const b = structuralSpringB; // Damping coefficient
-  const ℓ0 = structuralRestLength; // Rest length of the spring
+  const l = structuralRestLength; // Rest length of the spring
 
   // Calculate forces for horizontal structural springs
   for (let i = 0; i < rows; i++) {
@@ -205,23 +206,23 @@ function calculateForces() {
       const v_q = velocities[i][j + 1]; // [v_qx, v_qy]
 
       // Displacement vector components: Δr = r_p - r_q
-      const Δr_x = r_p[0] - r_q[0]; // Δr_x = x_p - x_q
-      const Δr_y = r_p[1] - r_q[1]; // Δr_y = y_p - y_q
+      const r_x = r_p[0] - r_q[0]; // r_x = x_p - x_q
+      const r_y = r_p[1] - r_q[1]; // r_y = y_p - y_q
 
       // Distance between particles p and q
-      const distance = Math.sqrt(Δr_x * Δr_x + Δr_y * Δr_y);
+      const distance = Math.sqrt(r_x * r_x + r_y * r_y);
 
       // Avoid division by zero
       if (distance === 0) continue;
 
       // Unit vector along the displacement: n̂ = Δr / |Δr|
-      const n_x = Δr_x / distance;
-      const n_y = Δr_y / distance;
+      const n_x = r_x / distance;
+      const n_y = r_y / distance;
 
       // **Spring Force Calculation**
 
-      // Calculate the spring force magnitude: F_s = -k (|Δr| - ℓ0)
-      const F_s_magnitude = -restoreForce * k * (distance - ℓ0);
+      // Calculate the spring force magnitude: F_s = -k (|Δr| - l)
+      const F_s_magnitude = -restoreForce * k * (distance - l);
 
       // Spring force components: F_s = F_s_magnitude * n̂
       const F_sx = F_s_magnitude * n_x;
@@ -368,6 +369,20 @@ document.getElementById("toggle-simulation").addEventListener("click", () => {
     ? "Stop Simulation"
     : "Start Simulation";
   if (isRunning) simulationLoop();
+});
+
+// Update node mass
+document.getElementById("mass").addEventListener("input", (e) => {
+  nodeMass = parseFloat(e.target.value, 10);
+});
+
+document.getElementById("spsK").addEventListener("input", (e) => {
+  structuralSpringK = parseFloat(e.target.value, 10);
+  k = parseFloat(e.target.value, 10);
+});
+
+document.getElementById("ssK").addEventListener("input", (e) => {
+  shearSpringK = parseFloat(e.target.value, 10);
 });
 
 // Update grid rows
