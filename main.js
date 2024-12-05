@@ -194,35 +194,34 @@ function calculateForces() {
   const b = structuralSpringB;
   const l = structuralRestLength;
 
+  /*
   // Calculate forces for horizontal structural springs
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols - 1; j++) {
-      const r_p = positions[i][j];
-      const r_q = positions[i][j + 1];
-      const v_p = velocities[i][j];
-      const v_q = velocities[i][j + 1];
+      const pos_p = positions[i][j];
+      const pos_q = positions[i][j + 1];
+      const vel_p = velocities[i][j];
+      const vel_q = velocities[i][j + 1];
 
-      const r_x = r_p[0] - r_q[0];
-      const distance = Math.sqrt(r_x * r_x);
+      const r_pq = pos_p[0] - pos_q[0];
+      const distance = Math.sqrt(r_pq * r_pq);
 
       if (distance === 0) continue;
 
-      const n_x = r_x / distance;
+      const Fs_pq = (-k * (distance - l) * r_pq) / distance;
+      const Fs_qp = (-k * (distance - l) * -r_pq) / distance;
 
-      const F_s_magnitude = -restoreForce * k * (distance - l);
-      const F_sx = F_s_magnitude * n_x;
+      const Fd_pq = -b * r_pq;
+      const Fd_qp = -b * -r_pq;
 
-      const v_x = v_p[0] - v_q[0];
+      const F_total_pq = Fs_pq + Fd_pq;
+      const F_total_qp = Fs_qp + Fd_qp;
 
-      const F_dx = -b * v_x;
-
-      const F_total_x = F_sx + F_dx;
-
-      forces[i][j][0] += F_total_x;
-      forces[i][j + 1][0] -= F_total_x;
+      forces[i][j][0] += F_total_pq;
+      forces[i][j + 1][0] += F_total_qp;
     }
   }
-
+  */
   // Calculate forces for vertical structural springs
   for (let i = 0; i < rows - 1; i++) {
     for (let j = 0; j < cols; j++) {
@@ -238,7 +237,7 @@ function calculateForces() {
 
       const n_y = r_y / distance;
 
-      const F_s_magnitude = -restoreForce * k * (distance - l);
+      const F_s_magnitude = -k * (distance - l);
       const F_sy = F_s_magnitude * n_y;
 
       const v_y = v_p[1] - v_q[1];
