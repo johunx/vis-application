@@ -184,75 +184,87 @@ function calculateForces() {
   // Reset forces for all particles
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
-      forces[i][j][0] = 0; // Force in x-direction
-      forces[i][j][1] = 0; // Force in y-direction
+      forces[i][j][0] = 0;
+      forces[i][j][1] = 0;
     }
   }
 
   // Structural Spring Constants
-  let k = structuralSpringK; // Spring stiffness coefficient
-  const b = structuralSpringB; // Damping coefficient
-  const l = structuralRestLength; // Rest length of the spring
+  let k = structuralSpringK;
+  const b = structuralSpringB;
+  const l = structuralRestLength;
 
   // Calculate forces for horizontal structural springs
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols - 1; j++) {
-      // Positions of particles p and q
-      const r_p = positions[i][j]; // [x_p, y_p]
-      const r_q = positions[i][j + 1]; // [x_q, y_q]
+      const r_p = positions[i][j];
+      const r_q = positions[i][j + 1];
+      const v_p = velocities[i][j];
+      const v_q = velocities[i][j + 1];
 
-      // Velocities of particles p and q
-      const v_p = velocities[i][j]; // [v_px, v_py]
-      const v_q = velocities[i][j + 1]; // [v_qx, v_qy]
-
-      // Displacement vector components: Δr = r_p - r_q
-      const r_x = r_p[0] - r_q[0]; // r_x = x_p - x_q
-      const r_y = r_p[1] - r_q[1]; // r_y = y_p - y_q
-
-      // Distance between particles p and q
+      const r_x = r_p[0] - r_q[0];
+      const r_y = r_p[1] - r_q[1];
       const distance = Math.sqrt(r_x * r_x + r_y * r_y);
 
-      // Avoid division by zero
       if (distance === 0) continue;
 
-      // Unit vector along the displacement: n̂ = Δr / |Δr|
       const n_x = r_x / distance;
       const n_y = r_y / distance;
 
-      // **Spring Force Calculation**
-
-      // Calculate the spring force magnitude: F_s = -k (|Δr| - l)
       const F_s_magnitude = -restoreForce * k * (distance - l);
-
-      // Spring force components: F_s = F_s_magnitude * n̂
       const F_sx = F_s_magnitude * n_x;
       const F_sy = F_s_magnitude * n_y;
 
-      // **Damping Force Calculation**
+      const Δv_x = v_p[0] - v_q[0];
+      const Δv_y = v_p[1] - v_q[1];
 
-      // Relative velocity components: Δv = v_p - v_q
-      const Δv_x = v_p[0] - v_q[0]; // Δv_x = v_px - v_qx
-      const Δv_y = v_p[1] - v_q[1]; // Δv_y = v_py - v_qy
-
-      // Damping force components: F_d = -b * Δv
       const F_dx = -b * Δv_x;
       const F_dy = -b * Δv_y;
 
-      // **Total Force Components**
-
-      // Total force on particle p due to particle q: F_total = F_s + F_d
       const F_total_x = F_sx + F_dx;
       const F_total_y = F_sy + F_dy;
 
-      // **Apply Forces to Particles**
-
-      // Update forces on particle p
       forces[i][j][0] += F_total_x;
       forces[i][j][1] += F_total_y;
-
-      // Update forces on particle q (Newton's Third Law)
       forces[i][j + 1][0] -= F_total_x;
       forces[i][j + 1][1] -= F_total_y;
+    }
+  }
+
+  // Calculate forces for vertical structural springs
+  for (let i = 0; i < rows - 1; i++) {
+    for (let j = 0; j < cols; j++) {
+      const r_p = positions[i][j];
+      const r_q = positions[i + 1][j];
+      const v_p = velocities[i][j];
+      const v_q = velocities[i + 1][j];
+
+      const r_x = r_p[0] - r_q[0];
+      const r_y = r_p[1] - r_q[1];
+      const distance = Math.sqrt(r_x * r_x + r_y * r_y);
+
+      if (distance === 0) continue;
+
+      const n_x = r_x / distance;
+      const n_y = r_y / distance;
+
+      const F_s_magnitude = -restoreForce * k * (distance - l);
+      const F_sx = F_s_magnitude * n_x;
+      const F_sy = F_s_magnitude * n_y;
+
+      const Δv_x = v_p[0] - v_q[0];
+      const Δv_y = v_p[1] - v_q[1];
+
+      const F_dx = -b * Δv_x;
+      const F_dy = -b * Δv_y;
+
+      const F_total_x = F_sx + F_dx;
+      const F_total_y = F_sy + F_dy;
+
+      forces[i][j][0] += F_total_x;
+      forces[i][j][1] += F_total_y;
+      forces[i + 1][j][0] -= F_total_x;
+      forces[i + 1][j][1] -= F_total_y;
     }
   }
 }
