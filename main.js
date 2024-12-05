@@ -215,11 +215,11 @@ function calculateForces() {
       const F_sx = F_s_magnitude * n_x;
       const F_sy = F_s_magnitude * n_y;
 
-      const Δv_x = v_p[0] - v_q[0];
-      const Δv_y = v_p[1] - v_q[1];
+      const v_x = v_p[0] - v_q[0];
+      const v_y = v_p[1] - v_q[1];
 
-      const F_dx = -b * Δv_x;
-      const F_dy = -b * Δv_y;
+      const F_dx = -b * v_x;
+      const F_dy = -b * v_y;
 
       const F_total_x = F_sx + F_dx;
       const F_total_y = F_sy + F_dy;
@@ -252,11 +252,11 @@ function calculateForces() {
       const F_sx = F_s_magnitude * n_x;
       const F_sy = F_s_magnitude * n_y;
 
-      const Δv_x = v_p[0] - v_q[0];
-      const Δv_y = v_p[1] - v_q[1];
+      const v_x = v_p[0] - v_q[0];
+      const v_y = v_p[1] - v_q[1];
 
-      const F_dx = -b * Δv_x;
-      const F_dy = -b * Δv_y;
+      const F_dx = -b * v_x;
+      const F_dy = -b * v_y;
 
       const F_total_x = F_sx + F_dx;
       const F_total_y = F_sy + F_dy;
