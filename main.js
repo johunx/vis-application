@@ -21,7 +21,7 @@ let rows = parseInt(document.getElementById("rows").value, 10);
 let cols = parseInt(document.getElementById("cols").value, 10);
 let restoreForce = parseFloat(document.getElementById("restore-force").value);
 let damping = parseFloat(document.getElementById("damping").value);
-const nodeRadius = 5;
+const nodeRadius = 10;
 const timeStep = 0.016;
 const padding = 50;
 
@@ -194,7 +194,6 @@ function calculateForces() {
   const b = structuralSpringB;
   const l = structuralRestLength;
 
-  /*
   // Calculate forces for horizontal structural springs
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols - 1; j++) {
@@ -204,15 +203,17 @@ function calculateForces() {
       const vel_q = velocities[i][j + 1];
 
       const r_pq = pos_p[0] - pos_q[0];
+      const v_pq = vel_p[0] - vel_q[0];
+
       const distance = Math.sqrt(r_pq * r_pq);
 
       if (distance === 0) continue;
 
-      const Fs_pq = (-k * (distance - l) * r_pq) / distance;
-      const Fs_qp = (-k * (distance - l) * -r_pq) / distance;
+      const Fs_pq = -k * (distance - l) * (r_pq / distance);
+      const Fs_qp = -k * (distance - l) * (-r_pq / distance);
 
-      const Fd_pq = -b * r_pq;
-      const Fd_qp = -b * -r_pq;
+      const Fd_pq = -b * v_pq;
+      const Fd_qp = -b * -v_pq;
 
       const F_total_pq = Fs_pq + Fd_pq;
       const F_total_qp = Fs_qp + Fd_qp;
@@ -221,7 +222,7 @@ function calculateForces() {
       forces[i][j + 1][0] += F_total_qp;
     }
   }
-  */
+
   // Calculate forces for vertical structural springs
   for (let i = 0; i < rows - 1; i++) {
     for (let j = 0; j < cols; j++) {
@@ -248,6 +249,74 @@ function calculateForces() {
 
       forces[i][j][1] += F_total_y;
       forces[i + 1][j][1] -= F_total_y;
+    }
+  }
+
+  // Calculate forces for diagonal shear springs \
+  for (let i = 0; i < rows - 1; i++) {
+    for (let j = 0; j < cols - 1; j++) {
+      const pos_p = positions[i][j];
+      const pos_q = positions[i + 1][j + 1];
+      const vel_p = velocities[i][j];
+      const vel_q = velocities[i + 1][j + 1];
+
+      const dist_x = pos_p[0] - pos_q[0];
+      const dist_y = pos_p[1] - pos_q[1];
+
+      const vel_x = vel_p[0] - vel_q[0];
+      const vel_y = vel_p[1] - vel_q[1];
+
+      const dist = Math.sqrt(dist_x * dist_x + dist_y * dist_y);
+
+      if (dist === 0) continue;
+
+      const Fs_x = -k * (dist - l) * (dist_x / dist);
+      const Fs_y = -k * (dist - l) * (dist_y / dist);
+
+      const Fd_x = -b * vel_x;
+      const Fd_y = -b * vel_y;
+
+      const F_total_x = Fs_x + Fd_x;
+      const F_total_y = Fs_y + Fd_y;
+
+      forces[i][j][0] += F_total_x;
+      forces[i][j][1] += F_total_y;
+      forces[i + 1][j + 1][0] -= F_total_x;
+      forces[i + 1][j + 1][1] -= F_total_y;
+    }
+  }
+
+  // Calculate forces for diagonal shear springs /
+  for (let i = 1; i < rows; i++) {
+    for (let j = 0; j < cols - 1; j++) {
+      const pos_p = positions[i][j];
+      const pos_q = positions[i - 1][j + 1];
+      const vel_p = velocities[i][j];
+      const vel_q = velocities[i - 1][j + 1];
+
+      const dist_x = pos_p[0] - pos_q[0];
+      const dist_y = pos_p[1] - pos_q[1];
+
+      const vel_x = vel_p[0] - vel_q[0];
+      const vel_y = vel_p[1] - vel_q[1];
+
+      const dist = Math.sqrt(dist_x * dist_x + dist_y * dist_y);
+
+      if (dist === 0) continue;
+
+      const Fs_x = -k * (dist - l) * (dist_x / dist);
+      const Fs_y = -k * (dist - l) * (dist_y / dist);
+
+      const Fd_x = -b * vel_x;
+      const Fd_y = -b * vel_y;
+
+      const F_total_x = Fs_x + Fd_x;
+      const F_total_y = Fs_y + Fd_y;
+
+      forces[i][j][0] += F_total_x;
+      forces[i][j][1] += F_total_y;
+      forces[i - 1][j + 1][0] -= F_total_x;
+      forces[i - 1][j + 1][1] -= F_total_y;
     }
   }
 }
