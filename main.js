@@ -270,11 +270,11 @@ function calculateForces() {
 
       if (dist === 0) continue;
 
-      const Fs_x = -k * (dist - l) * (dist_x / dist);
-      const Fs_y = -k * (dist - l) * (dist_y / dist);
+      const Fs_x = -shearSpringK * (dist - shearRestLength) * (dist_x / dist);
+      const Fs_y = -shearSpringK * (dist - shearRestLength) * (dist_y / dist);
 
-      const Fd_x = -b * vel_x;
-      const Fd_y = -b * vel_y;
+      const Fd_x = -shearSpringB * vel_x;
+      const Fd_y = -shearSpringB * vel_y;
 
       const F_total_x = Fs_x + Fd_x;
       const F_total_y = Fs_y + Fd_y;
@@ -304,11 +304,11 @@ function calculateForces() {
 
       if (dist === 0) continue;
 
-      const Fs_x = -k * (dist - l) * (dist_x / dist);
-      const Fs_y = -k * (dist - l) * (dist_y / dist);
+      const Fs_x = -shearSpringK * (dist - shearRestLength) * (dist_x / dist);
+      const Fs_y = -shearSpringK * (dist - shearRestLength) * (dist_y / dist);
 
-      const Fd_x = -b * vel_x;
-      const Fd_y = -b * vel_y;
+      const Fd_x = -shearSpringB * vel_x;
+      const Fd_y = -shearSpringB * vel_y;
 
       const F_total_x = Fs_x + Fd_x;
       const F_total_y = Fs_y + Fd_y;
