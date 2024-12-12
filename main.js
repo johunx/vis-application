@@ -30,12 +30,12 @@ let nodeMass = 0.2;
 // Structural spring parameters
 let structuralSpringK = 20; // Structural spring stiffness (kg/s^2)
 const structuralSpringB = 0.1; // Structural spring damping (kg/s)
-const structuralRestLength = 100; // Structural spring rest length (pixels)
+// const structuralRestLength = 100; // Structural spring rest length (pixels)
 
 // Shear spring parameters
 let shearSpringK = 7; // Shear spring stiffness (kg/s^2)
 const shearSpringB = 0.05; // Shear spring damping (kg/s)
-const shearRestLength = structuralRestLength * Math.sqrt(2); // Shear spring rest length (pixels)
+// const shearRestLength = structuralRestLength * Math.sqrt(2); // Shear spring rest length (pixels)
 
 // Arrays to hold positions, velocities, and forces
 let positions = [];
@@ -56,6 +56,13 @@ function initializeGrid() {
   forces = [];
   const xStep = (width - 2 * padding) / (cols - 1);
   const yStep = (height - 2 * padding) / (rows - 1);
+
+  // Separate rest lengths for horizontal and vertical springs
+  window.horizontalRestLength = xStep;
+  window.verticalRestLength = yStep;
+  // Diagonal rest length based on actual grid spacing
+  window.shearRestLength = Math.sqrt(xStep * xStep + yStep * yStep);
+
 
   for (let i = 0; i < rows; i++) {
     const positionRow = [];
@@ -192,7 +199,7 @@ function calculateForces() {
   // Structural Spring Constants
   let k = structuralSpringK;
   const b = structuralSpringB;
-  const l = structuralRestLength;
+  // const l = structuralRestLength;
 
   // Calculate forces for horizontal structural springs
   for (let i = 0; i < rows; i++) {
@@ -209,8 +216,8 @@ function calculateForces() {
 
       if (distance === 0) continue;
 
-      const Fs_pq = -k * (distance - l) * (r_pq / distance);
-      const Fs_qp = -k * (distance - l) * (-r_pq / distance);
+      const Fs_pq = -k * (distance - horizontalRestLength) * (r_pq / distance);
+      const Fs_qp = -k * (distance - horizontalRestLength) * (-r_pq / distance);
 
       const Fd_pq = -b * v_pq;
       const Fd_qp = -b * -v_pq;
@@ -238,7 +245,7 @@ function calculateForces() {
 
       const n_y = r_y / distance;
 
-      const F_s_magnitude = -k * (distance - l);
+      const F_s_magnitude = -k * (distance - verticalRestLength);
       const F_sy = F_s_magnitude * n_y;
 
       const v_y = v_p[1] - v_q[1];
